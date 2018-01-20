@@ -11,7 +11,7 @@
 # or implied. See the License for the specific language governing permissions and limitations under
 # the License.
 #
-FROM openzipkin/jre-full:1.8.0_152
+FROM ppc64le/openjdk:8u151-jre-alpine3.7
 MAINTAINER OpenZipkin "http://zipkin.io/"
 
 ENV ZIPKIN_REPO https://jcenter.bintray.com
