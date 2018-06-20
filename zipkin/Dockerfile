@@ -11,7 +11,7 @@
 # or implied. See the License for the specific language governing permissions and limitations under
 # the License.
 #
-FROM openzipkin/jre-full:1.8.0_152
+FROM ppc64le/openjdk:8u171-jre-slim-stretch
 MAINTAINER OpenZipkin "http://zipkin.io/"
 
 ENV ZIPKIN_REPO https://jcenter.bintray.com
@@ -24,15 +24,16 @@ ENV JAVA_OPTS -Djava.security.egd=file:/dev/./urandom
 COPY zipkin/ /zipkin/
 WORKDIR /zipkin
 
-RUN apk add unzip --no-cache && \
-    curl -SL $ZIPKIN_REPO/io/zipkin/java/zipkin-server/$ZIPKIN_VERSION/zipkin-server-$ZIPKIN_VERSION-exec.jar > zipkin-server.jar && \
-    # don't break when unzip finds an extra header https://github.com/openzipkin/zipkin/issues/1932
-    unzip zipkin-server.jar ; \
+RUN apt-get update && apt-get install -y curl unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY zipkin-server-2.6.0-exec.jar /zipkin/zipkin-server.jar
+RUN unzip zipkin-server.jar ; \
     rm zipkin-server.jar && \
     curl -SL $ZIPKIN_REPO/io/zipkin/java/zipkin-autoconfigure-collector-kafka10/$ZIPKIN_VERSION/zipkin-autoconfigure-collector-kafka10-$ZIPKIN_VERSION-module.jar > kafka10.jar && \
     unzip kafka10.jar -d kafka10 && \
     rm kafka10.jar && \
-    apk del unzip
+    apt-get remove -y unzip
 
 EXPOSE 9410 9411
 
